@@ -1,13 +1,24 @@
 import React from "react";
 import styled from "styled-components";
 import { Chat, Notifications, Person, Search } from "@material-ui/icons";
-import profilePicture from "../assets/avatar.jpg";
+import { Link, useHistory } from "react-router-dom";
+import { useGlobalContext } from "../Context/AuthContext";
 
 const Toolbar = () => {
+  const { dispatch, user } = useGlobalContext();
+  const history = useHistory();
+  const public_folder = process.env.REACT_APP_PUBLIC_FOLDER;
+
+  const handleLogout = () => {
+    dispatch({ type: "LOG_OUT" });
+    history.push("/login");
+  };
   return (
     <ToolbarStyled>
       <div className="toolbar-left">
-        <span className="logo">NJoy</span>
+        <Link to="/" style={{ textDecoration: "none" }}>
+          <span className="logo">NJoy</span>
+        </Link>
       </div>
       <div className="toolbar-center">
         <div className="serachbar">
@@ -17,28 +28,39 @@ const Toolbar = () => {
       </div>
       <div className="toolbar-right">
         <div className="toolbar-links">
-          <span className="link">Homepage</span>
-          <span className="link">Timeline</span>
+          <Link to="/" style={{ textDecoration: "none", color: "white" }}>
+            <span className="link">Homepage</span>
+          </Link>
+          <span className="link" onClick={handleLogout}>
+            LogOut
+          </span>
         </div>
         <div className="toolbar-icons">
           <div className="toolbar-icon-item">
             <Person />
             <span className="toolbar-icon-badgw">1</span>
           </div>
-          <div className="toolbar-icon-item">
-            <Chat />
-            <span className="toolbar-icon-badgw">1</span>
-          </div>
+          <Link
+            to="/messenger"
+            style={{ color: "white", textDecoration: "none" }}
+          >
+            <div className="toolbar-icon-item">
+              <Chat />
+              <span className="toolbar-icon-badgw">1</span>
+            </div>
+          </Link>
           <div className="toolbar-icon-item">
             <Notifications />
             <span className="toolbar-icon-badgw">1</span>
           </div>
         </div>
-        <img
-          src={profilePicture}
-          alt="user profile pic"
-          className="toolbar-image"
-        />
+        <Link to={`profile/${user.username}`}>
+          <img
+            src={user.profilePicture || public_folder + "NoAvatar.png"}
+            alt="user profile pic"
+            className="toolbar-image"
+          />
+        </Link>
       </div>
     </ToolbarStyled>
   );
@@ -94,10 +116,15 @@ const ToolbarStyled = styled.div`
     align-items: center;
     justify-content: space-around;
     color: white;
-    .link {
-      margin-left: 10px;
-      cursor: pointer;
-      font-size: 1.2rem;
+    .toolbar-links {
+      .link {
+        margin-left: 10px;
+        cursor: pointer;
+        font-size: 1.2rem;
+      }
+      .link:focus {
+        font-size: 30rem;
+      }
     }
     .toolbar-icons {
       display: flex;
@@ -126,6 +153,7 @@ const ToolbarStyled = styled.div`
       border-radius: 50%;
       object-fit: cover;
       cursor: pointer;
+      border: 2px solid var(--border-color);
     }
   }
 `;

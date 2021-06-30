@@ -14,6 +14,8 @@ import {
 } from "@material-ui/icons";
 
 const Sidebar = () => {
+  const public_folder = process.env.REACT_APP_PUBLIC_FOLDER;
+
   return (
     <SidebarStyled>
       <div className="sidebar-wrapper">
@@ -60,9 +62,12 @@ const Sidebar = () => {
         <ul className="sidebar-friend-list">
           {Users.map((closeFriend) => {
             return (
-              <div>
+              <div key={closeFriend.id}>
                 <li className="sidebar-friend">
-                  <img src={closeFriend.profilepicture} alt="" />
+                  <img
+                    src={public_folder + closeFriend.profilepicture}
+                    alt=""
+                  />
                   <span className="friend-name">{closeFriend.username}</span>
                 </li>
               </div>

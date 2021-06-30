@@ -1,10 +1,42 @@
-import React from "react";
+import axios from "axios";
+import React, { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+import { io } from "socket.io-client";
 import styled from "styled-components";
 import birthday from "../assets/birthday.png";
 import ad from "../assets/img2.jpg";
+import { useGlobalContext } from "../Context/AuthContext";
 import { Users } from "../tempData";
+import OnlineFriends from "./Messenger/OnlineFriends";
 
 const Rightbar = () => {
+  const public_folder = process.env.REACT_APP_PUBLIC_FOLDER;
+  const [onlineUsers, setOnlineUsers] = useState(null);
+  const { user } = useGlobalContext();
+  const socket = useRef();
+  const [onlineUsersID, setOnlineUsersID] = useState(null);
+
+  useEffect(() => {
+    socket.current = io("ws://localhost:8900");
+  }, []);
+
+  useEffect(() => {
+    socket.current.emit("addUser", user._id);
+    socket.current.on("getUsers", (users) => {
+      const newUsers = users.filter((u) => u.userId !== user._id);
+      setOnlineUsersID(
+        user.followings.filter((f) => newUsers.some((u) => f === u.userId))
+      );
+    });
+  }, [user]);
+
+  // useEffect(() => {
+  //   try {
+  //     const res = axios.get(`/friends/${onlineUsers}`);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }, []);
   return (
     <RightbarStyled>
       <div className="rightbar-wrapper">
@@ -18,16 +50,15 @@ const Rightbar = () => {
         <img src={ad} alt="ad-img" className="ad-image" />
         <h4 className="rightbar-title">Online Friends</h4>
         <ul className="friend-list">
-          {Users.map((user) => {
+          {onlineUsersID?.map((userId) => {
             return (
-              <div key={user.id}>
-                <li className="friend">
-                  <div className="profile-image-container">
-                    <img src={user.profilepicture} alt="" />
-                    <span className="online-status"></span>
-                  </div>
-                  <span className="username">{user.username}</span>
-                </li>
+              <div key={userId}>
+                <Link
+                  to="/messenger"
+                  style={{ textDecoration: "none", color: "black" }}
+                >
+                  <OnlineFriends userId={userId} />
+                </Link>
               </div>
             );
           })}
@@ -68,35 +99,6 @@ const RightbarStyled = styled.div`
       padding: 0;
       margin-left: 10px;
       list-style: none;
-      .friend {
-        display: flex;
-        align-items: center;
-        margin-bottom: 5px;
-        .profile-image-container {
-          margin-right: 10px;
-          position: relative;
-          img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin: 10px 0;
-          }
-          .online-status {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background-color: limegreen;
-            position: absolute;
-            top: 10px;
-            right: -2px;
-            border: 1px solid white;
-          }
-        }
-        .username {
-          font-weight: 500;
-        }
-      }
     }
   }
 `;

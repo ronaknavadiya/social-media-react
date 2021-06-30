@@ -74,18 +74,44 @@ router.get("/:postId", async (req, res) => {
 });
 
 // GET ALL HOMEPAGE POSTS
-router.get("/timeline/all", async (req, res) => {
+router.get("/timeline/:userId", async (req, res) => {
   try {
-    const currentUser = await User.findById(req.body.userId);
+    const currentUser = await User.findById(req.params.userId);
     const userPosts = await Post.find({ userId: currentUser._id });
     const friendPost = await Promise.all(
       currentUser.followings.map((friendId) => {
         return Post.find({ userId: friendId });
       })
     );
-    res.json(userPosts.concat(...friendPost));
+    res.status(200).json(userPosts.concat(...friendPost));
   } catch (error) {
     res.status(500).json(error);
+  }
+});
+
+// GET USERS ALL POSTS
+router.get("/profile/:username", async (req, res) => {
+  try {
+    const currentUser = await User.findOne({ username: req.params.username });
+    const userPosts = await Post.find({ userId: currentUser._id });
+    res.status(200).json(userPosts);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});
+
+// COMENT ON A POST
+router.put("/:postId/comment", async (req, res) => {
+  const post = Post.findById(req.params.postId);
+  try {
+    await post.updateOne({
+      $push: { comments: req.body.comments },
+    });
+
+    res.status(200).json("You have commented successfully");
+  } catch (error) {
+    res.status(500).json(error);
+    console.log(error);
   }
 });
 

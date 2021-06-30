@@ -1,7 +1,37 @@
-import React from "react";
+import React, { useRef } from "react";
 import styled from "styled-components";
+import { useGlobalContext } from "../Context/AuthContext";
+import { registerCall } from "../apiCalls";
+import { useHistory } from "react-router";
+import { Link } from "react-router-dom";
 
 const Register = () => {
+  const email = useRef();
+  const password = useRef();
+  const username = useRef();
+  const confirmPassword = useRef();
+  const { dispatch, user } = useGlobalContext();
+  const history = useHistory();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (password.current.value === confirmPassword.current.value) {
+      registerCall(
+        {
+          email: email.current.value,
+          username: username.current.value,
+          password: password.current.value,
+        },
+        dispatch,
+        history
+      );
+    } else {
+      confirmPassword.current.setCustomValidity("password doesn't match");
+    }
+    console.log("data", user);
+  };
+
   return (
     <RegisterStyled>
       <div className="login-container">
@@ -12,27 +42,44 @@ const Register = () => {
           </span>
         </div>
         <div className="login-right">
-          <div className="loginbox">
+          <form className="loginbox" onSubmit={handleSubmit}>
+            <input
+              type="text"
+              className="input-email"
+              placeholder="Username.."
+              ref={username}
+              required
+            />
             <input
               type="email"
               className="input-email"
-              placeholder="Username.."
+              placeholder="Email.."
+              ref={email}
+              required
             />
-            <input type="email" className="input-email" placeholder="Email.." />
             <input
-              type="text"
+              type="password"
               className="input-password"
               placeholder="Password.."
+              ref={password}
+              required
+              minLength="6"
             />
             <input
-              type="text"
+              type="password"
               className="input-password"
               placeholder="Confirm Password.."
+              ref={confirmPassword}
+              required
+              minLength="6"
             />
-            <button className="login-btn">Sign Up</button>
-
-            <button className="login-register-btn">Have an account ?</button>
-          </div>
+            <button className="login-btn" type="submit">
+              Sign Up
+            </button>
+            <Link to="/login">
+              <button className="login-register-btn">Have an account ?</button>
+            </Link>
+          </form>
         </div>
       </div>
     </RegisterStyled>
@@ -122,6 +169,7 @@ const RegisterStyled = styled.div`
           color: white;
           font-weight: 500;
           cursor: pointer;
+          width: 100%;
         }
         .login-btn:focus,
         .login-register-btn:focus {

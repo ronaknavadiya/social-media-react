@@ -8,6 +8,9 @@ const mongoose = require("mongoose");
 const userRoute = require("./routes/users");
 const authRoute = require("./routes/auth");
 const postRoute = require("./routes/posts");
+const chatRoute = require("./routes/chats");
+const messageRoute = require("./routes/messages");
+const cors = require("cors");
 
 dotenv.config();
 
@@ -22,14 +25,19 @@ mongoose
   })
   .catch((err) => console.log("Error:", err));
 
+mongoose.set("useFindAndModify", false);
+
 // middleware
 app.use(express.json());
 app.use(helmet());
 app.use(morgan("common"));
+app.use(cors());
 
 app.use("/api/users", userRoute);
 app.use("/api/auth", authRoute);
 app.use("/api/posts", postRoute);
+app.use("/api/chats", chatRoute);
+app.use("/api/messages", messageRoute);
 
 app.listen(port, () => {
   console.log(`listenin to port ${port}`);

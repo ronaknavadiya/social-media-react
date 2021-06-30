@@ -1,7 +1,24 @@
-import React from "react";
+import React, { useRef } from "react";
 import styled from "styled-components";
+import { loginCall } from "../apiCalls";
+import { useGlobalContext } from "../Context/AuthContext";
+import { CircularProgress } from "@material-ui/core";
+import { Link } from "react-router-dom";
 
 const Login = () => {
+  const { dispatch, user, isfetching, error } = useGlobalContext();
+
+  const email = useRef();
+  const password = useRef();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    loginCall(
+      { email: email.current.value, password: password.current.value },
+      dispatch
+    );
+    console.log("data", user, isfetching, error);
+  };
   return (
     <LoginStyled>
       <div className="login-container">
@@ -12,19 +29,40 @@ const Login = () => {
           </span>
         </div>
         <div className="login-right">
-          <div className="loginbox">
-            <input type="email" className="input-email" placeholder="Email.." />
+          <form className="loginbox" onSubmit={handleSubmit}>
             <input
-              type="text"
+              type="email"
+              className="input-email"
+              placeholder="Email.."
+              ref={email}
+              required
+            />
+            <input
+              type="password"
               className="input-password"
               placeholder="Password.."
+              required
+              minLength="6"
+              ref={password}
             />
-            <button className="login-btn">Log In</button>
-            <span className="forgot-pass">Forgot Password ?</span>
-            <button className="login-register-btn">
-              Don't have an account ?
+            <button className="login-btn" type="submit" disabled={isfetching}>
+              {isfetching ? (
+                <CircularProgress color="primary" size="20px" />
+              ) : (
+                "Log In"
+              )}
             </button>
-          </div>
+            <span className="forgot-pass">Forgot Password ?</span>
+            <Link to="/register">
+              <button className="login-register-btn" disabled={isfetching}>
+                {isfetching ? (
+                  <CircularProgress color="primary" size="20px" />
+                ) : (
+                  "Don't have an account ?"
+                )}
+              </button>
+            </Link>
+          </form>
         </div>
       </div>
     </LoginStyled>
@@ -110,6 +148,7 @@ const LoginStyled = styled.div`
         .login-register-btn {
           height: 30px;
           border-radius: 10px;
+          width: 100%;
           border: none;
           background-color: #42b72a;
           font-size: 20px;
@@ -120,6 +159,10 @@ const LoginStyled = styled.div`
         .login-btn:focus,
         .login-register-btn:focus {
           outline: none;
+        }
+        .login-btn:disabled,
+        .login-register-btn:disabled {
+          cursor: not-allowed;
         }
       }
     }

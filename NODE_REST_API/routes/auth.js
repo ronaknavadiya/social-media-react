@@ -18,6 +18,9 @@ router.post("/register", async (req, res) => {
     const user = await newUser.save();
     res.status(200).json(user);
   } catch (error) {
+    if (error.code === 11000) {
+      console.log("User Already have an account");
+    }
     res.status(500).json(error);
   }
 });
