@@ -29,14 +29,6 @@ const Rightbar = () => {
       );
     });
   }, [user]);
-
-  // useEffect(() => {
-  //   try {
-  //     const res = axios.get(`/friends/${onlineUsers}`);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }, []);
   return (
     <RightbarStyled>
       <div className="rightbar-wrapper">

@@ -5,15 +5,18 @@ import axios from "axios";
 import { format } from "timeago.js";
 import { Link } from "react-router-dom";
 import { useGlobalContext } from "../../Context/AuthContext";
+import EditPost from "./EditPost";
 
 const Post = ({ post }) => {
   const userId = post.userId;
   const [likeCount, setLikeCount] = useState(post.likes.length);
   const [isLiked, setIsLiked] = useState(false);
   const [user, setUser] = useState({});
+  const [edit, setEdit] = useState(false);
   const public_folder = process.env.REACT_APP_PUBLIC_FOLDER;
   const [isComment, setIsComment] = useState(false);
   const commentText = useRef();
+  const { user: currentUser } = useGlobalContext();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -30,19 +33,13 @@ const Post = ({ post }) => {
   const likeHandler = async () => {
     try {
       await axios.put(`/posts/${post._id}/like`, {
-        userId: userId,
+        userId: currentUser._id,
       });
-      setLikeCount(post.likes.length);
     } catch (error) {
       console.log(error);
     }
-    if (isLiked) {
-      setLikeCount(likeCount - 1);
-      setIsLiked(false);
-    } else {
-      setLikeCount(likeCount + 1);
-      setIsLiked(true);
-    }
+    setLikeCount(isLiked ? likeCount - 1 : likeCount + 1);
+    setIsLiked(!isLiked);
   };
 
   const handleComments = () => {
@@ -63,6 +60,7 @@ const Post = ({ post }) => {
       await axios.put(`/posts/${post._id}/comment`, {
         comments: yourComment,
       });
+
       window.alert("You have commented successfully");
       window.location.reload();
     } catch (error) {
@@ -86,9 +84,15 @@ const Post = ({ post }) => {
               <div className="post-date">{format(post.createdAt)}</div>
             </div>
           </div>
-          <div className="post-top-right">
-            <MoreVert />
-          </div>
+          {userId === currentUser._id && (
+            <div className="post-top-right" onClick={() => setEdit(!edit)}>
+              <MoreVert />
+            </div>
+          )}
+
+          {edit && (
+            <EditPost setEdit={setEdit} postId={post._id} uid={post.userId} />
+          )}
         </div>
         <div className="post-center">
           <span className="post-desc">{post?.desc}</span>
@@ -104,9 +108,14 @@ const Post = ({ post }) => {
               onClick={likeHandler}
             /> */}
               <img
-                src={public_folder + `heart.png`}
+                src={
+                  isLiked
+                    ? public_folder + `heart1.png`
+                    : public_folder + `heart2.png`
+                }
                 alt="heart button"
                 onClick={likeHandler}
+                className="heart-btn"
               />
               <span className="likeCount">{likeCount}</span>
               <img
@@ -177,6 +186,7 @@ const PostStyled = styled.div`
       display: flex;
       justify-content: space-between;
       align-items: center;
+      position: relative;
       .post-top-left {
         display: flex;
         align-items: center;
@@ -197,8 +207,10 @@ const PostStyled = styled.div`
           }
         }
       }
-      .post-top-right {
+      .post-top-right:hover {
+        cursor: pointer;
         svg {
+          font-size: 1.6rem;
         }
       }
     }
@@ -231,6 +243,13 @@ const PostStyled = styled.div`
           display: flex;
           align-items: center;
           img {
+            height: 24px;
+            width: 24px;
+            margin-right: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+          }
+          .heart-btn {
             height: 24px;
             width: 24px;
             margin-right: 5px;
@@ -287,8 +306,6 @@ const PostStyled = styled.div`
             }
             .name-and-time {
               width: 100%;
-              border: 1px solid var(--border-color);
-              border-radius: 5px;
 
               .name-text {
                 width: 100%;
