@@ -61,7 +61,7 @@ const Messenger = () => {
       text: typedMessage.current.value,
     });
     try {
-      const res = await axios.post("/messages", newMessage);
+      await axios.post("/messages", newMessage);
       setMessages([...messages, newMessage]);
       typedMessage.current.value = "";
     } catch (error) {

@@ -1,4 +1,3 @@
-import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { io } from "socket.io-client";
@@ -6,12 +5,9 @@ import styled from "styled-components";
 import birthday from "../assets/birthday.png";
 import ad from "../assets/img2.jpg";
 import { useGlobalContext } from "../Context/AuthContext";
-import { Users } from "../tempData";
 import OnlineFriends from "./Messenger/OnlineFriends";
 
 const Rightbar = () => {
-  const public_folder = process.env.REACT_APP_PUBLIC_FOLDER;
-  const [onlineUsers, setOnlineUsers] = useState(null);
   const { user } = useGlobalContext();
   const socket = useRef();
   const [onlineUsersID, setOnlineUsersID] = useState(null);

@@ -11,7 +11,7 @@ const EditPost = ({ setEdit, postId, uid }) => {
 
   const handleDeletePost = async () => {
     try {
-      const res = await axios.delete(`/posts/${postId}`, {
+      await axios.delete(`/posts/${postId}`, {
         data: { userId: user._id },
       });
       window.alert("Yuur post has been deleted successfully");

@@ -13,8 +13,9 @@ const ProfilePage = () => {
   const public_folder = process.env.REACT_APP_PUBLIC_FOLDER;
   const [user, setUser] = useState({});
   const params = useParams();
-  const [progress, setProgress] = useState(null);
+  const [progress, setProgress] = useState(0);
   const { user: currentUser, dispatch } = useGlobalContext();
+  const [file, setFile] = useState(null);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -26,9 +27,9 @@ const ProfilePage = () => {
 
   const UploadPic = async (e, flag) => {
     e.preventDefault();
-    console.log("flag", flag);
+
     if (e.target.files[0]) {
-      console.log(e.target.files[0]);
+      setFile(e.target.files[0]);
       let name = "";
       if (flag) {
         name = "profilePicture";
@@ -57,7 +58,6 @@ const ProfilePage = () => {
             .child(e.target.files[0].name)
             .getDownloadURL()
             .then(async (url) => {
-              console.log("url", url);
               try {
                 if (flag) {
                   await axios.put(`/users/${user._id}`, {
@@ -123,6 +123,16 @@ const ProfilePage = () => {
                   />
                 )}
               </label>
+              {file && (
+                <div className="img-container">
+                  <progress
+                    value={progress}
+                    max="100"
+                    style={{ width: "30%" }}
+                  />
+                  {progress} %
+                </div>
+              )}
             </div>
             <div className="profileInfo">
               <h4>{user.username}</h4>
@@ -164,6 +174,19 @@ const ProfilePageStyled = styled.div`
           top: 8rem;
           border: 3px solid var(--border-color);
           cursor: pointer;
+        }
+        .img-container {
+          padding: 0 20px 10px 20px;
+          display: flex;
+          align-items: center;
+          progress {
+            margin-right: 10px;
+          }
+          /* .cancel-img {
+            padding-left: 9px;
+            cursor: pointer;
+            font-size: 30px;
+          } */
         }
       }
       .profileInfo {

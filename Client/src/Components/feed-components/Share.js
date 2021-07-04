@@ -1,6 +1,5 @@
 import React, { useRef, useState } from "react";
 import styled from "styled-components";
-import ronak from "../../assets/ronak.jpg";
 import {
   PermMedia,
   Label,
@@ -71,7 +70,7 @@ const Share = () => {
         userId: user._id,
         desc: desc.current.value,
       };
-      console.log("newPOST", newPost);
+
       try {
         await axios.post("/posts", newPost);
         window.alert("Post Has been Uploaded..");

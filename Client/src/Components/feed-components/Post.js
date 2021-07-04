@@ -28,7 +28,7 @@ const Post = ({ post }) => {
 
   useEffect(() => {
     setIsLiked(post.likes.includes(userId));
-  }, [setIsLiked]);
+  }, [setIsLiked, userId, post]);
 
   const likeHandler = async () => {
     try {

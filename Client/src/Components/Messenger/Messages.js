@@ -23,7 +23,7 @@ const Messages = ({ ownMessage, message }) => {
     } else {
       setFriend(user);
     }
-  }, [message, ownMessage]);
+  }, [message, ownMessage, user]);
 
   return (
     <MessageStyled>

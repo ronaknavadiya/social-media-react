@@ -1,13 +1,37 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import styled from "styled-components";
-import { Chat, Notifications, Person, Search } from "@material-ui/icons";
+import {
+  Cancel,
+  Chat,
+  Notifications,
+  Person,
+  Search,
+} from "@material-ui/icons";
 import { Link, useHistory } from "react-router-dom";
 import { useGlobalContext } from "../Context/AuthContext";
+import axios from "axios";
 
 const Toolbar = () => {
   const { dispatch, user } = useGlobalContext();
   const history = useHistory();
   const public_folder = process.env.REACT_APP_PUBLIC_FOLDER;
+  const search = useRef();
+  const [userList, setUserList] = useState([]);
+
+  const handleSearch = async () => {
+    const searchText = search.current.value;
+    if (searchText) {
+      try {
+        const users = await axios.get(`/users/search/${searchText}`);
+        setUserList(users.data);
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      search.current.value = "";
+      setUserList([]);
+    }
+  };
 
   const handleLogout = () => {
     dispatch({ type: "LOG_OUT" });
@@ -23,7 +47,43 @@ const Toolbar = () => {
       <div className="toolbar-center">
         <div className="serachbar">
           <Search />
-          <input placeholder="Search here.." className="search-input" />
+          <input
+            placeholder="Search here.."
+            className="search-input"
+            ref={search}
+            onChange={handleSearch}
+          />
+
+          {search.current?.value && (
+            <div className="user-list">
+              {userList.map((uname) => {
+                return (
+                  <Link
+                    key={uname}
+                    to={`/profile/${uname}`}
+                    style={{ textDecoration: "none", color: "black" }}
+                  >
+                    <div
+                      className="user-name"
+                      onClick={() => {
+                        setUserList([]);
+                        search.current.value = "";
+                      }}
+                    >
+                      {uname}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+          <Cancel
+            className="cancel"
+            onClick={() => {
+              setUserList([]);
+              search.current.value = "";
+            }}
+          />
         </div>
       </div>
       <div className="toolbar-right">
@@ -54,7 +114,7 @@ const Toolbar = () => {
             <span className="toolbar-icon-badgw">1</span>
           </div>
         </div>
-        <Link to={`profile/${user.username}`}>
+        <Link to={`/profile/${user.username}`}>
           <img
             src={user.profilePicture || public_folder + "NoAvatar.png"}
             alt="user profile pic"
@@ -95,6 +155,7 @@ const ToolbarStyled = styled.div`
       border-radius: 30px;
       display: flex;
       align-items: center;
+      position: relative;
       svg {
         font-size: 1.8rem;
         margin-left: 1rem;
@@ -107,6 +168,25 @@ const ToolbarStyled = styled.div`
       }
       .search-input:focus {
         outline: none;
+      }
+      .user-list {
+        position: absolute;
+        top: 31px;
+        left: 20px;
+        background-color: #fffafa;
+        width: 90%;
+        .user-name {
+          padding-left: 15px;
+          padding-top: 5px;
+          padding-bottom: 5px;
+          cursor: pointer;
+        }
+        .user-name:hover {
+          background-color: lightgray;
+        }
+      }
+      .cancel {
+        cursor: pointer;
       }
     }
   }

@@ -123,4 +123,18 @@ router.get("/friends/:userId", async (req, res) => {
   }
 });
 
+// SEARCH A USER
+router.get("/search/:userName", async (req, res) => {
+  try {
+    let regex = new RegExp(req.params.userName, "i");
+    const users = await User.find({ username: regex });
+    const usernames = users.map((user) => {
+      return user.username;
+    });
+    res.status(200).json(usernames);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});
+
 module.exports = router;

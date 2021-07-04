@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import axios from "axios";
-import { useGlobalContext } from "../../Context/AuthContext";
 
 const OnlineFriends = ({ userId }) => {
   const public_folder = process.env.REACT_APP_PUBLIC_FOLDER;
